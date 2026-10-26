@@ -1,0 +1,7 @@
+node_modules/
+dist/
+# *.log
+scripts/
+notes.txt
+
+bube-chubby.zip

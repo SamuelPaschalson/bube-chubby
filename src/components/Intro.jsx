@@ -4,13 +4,13 @@ import { Music } from '../lib/audio';
 
 /**
  * THE OPENING
- *   closed → opening → peek → out → leaving → curtains
- * Tap the seal: flap opens, invitation slides out and rests long enough to
- * read, then the envelope floats away *while* the ribbon bow unties, and the
- * ivory & champagne drapes part from the centre onto the live website.
- * Tapping the card while it rests skips straight to the curtains.
+ *   closed → opening → curtains
+ * Tap the seal and everything flows in one movement (about 3s): the flap
+ * lifts and the envelope dissolves while the ribbon bow unties, its two halves
+ * sweeping out to the sides, and the ivory & champagne drapes are drawn
+ * open onto the live website, which rises in behind them.
  */
-const T = { flap: 600, peek: 650, out: 900, hold: 1400, leave: 850, curtains: 2900, fade: 700 }; // ms
+const T = { release: 550, curtains: 2500, fade: 600 }; // ms
 const FOLDS = 15;
 
 // Fold depth varies a little from fold to fold so the cloth never looks tiled.
@@ -22,8 +22,8 @@ function Drape({ side }) {
       <div className="folds">
         {Array.from({ length: FOLDS }, (_, j) => (
           // j = 0 is the outer edge, FOLDS-1 the leading edge at the centre.
-          // The leading edge moves first; the rest follow in a ripple.
-          <i key={j} className="fold" style={{ '--j': j, '--a': amp(j + (side === 'r' ? 5 : 0)), '--delay': `${((FOLDS - 1 - j) * 0.045).toFixed(3)}s` }} />
+          // The leading edge moves first; the rest follow in a gentle ripple.
+          <i key={j} className="fold" style={{ '--j': j, '--a': amp(j + (side === 'r' ? 5 : 0)), '--delay': `${((FOLDS - 1 - j) * 0.02).toFixed(3)}s` }} />
         ))}
       </div>
     </div>
@@ -39,7 +39,8 @@ function Tie() {
           <linearGradient id="rb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f3dfae" /><stop offset=".5" stopColor="#d9b46c" /><stop offset="1" stopColor="#b98a45" /></linearGradient>
           <linearGradient id="rb2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6e6bf" /><stop offset="1" stopColor="#c89a52" /></linearGradient>
         </defs>
-        <rect className="band" x="-30" y="50" width="260" height="18" fill="url(#rb)" stroke="#a87a38" strokeWidth=".6" />
+        <rect className="band band-l" x="-30" y="50" width="130" height="18" fill="url(#rb)" stroke="#a87a38" strokeWidth=".6" />
+        <rect className="band band-r" x="100" y="50" width="130" height="18" fill="url(#rb)" stroke="#a87a38" strokeWidth=".6" />
         <path className="tail tail-l" d="M97 64 L66 116 L84 108 L92 118 L104 66Z" fill="url(#rb2)" stroke="#a87a38" strokeWidth=".6" />
         <path className="tail tail-r" d="M103 64 L134 116 L116 108 L108 118 L96 66Z" fill="url(#rb2)" stroke="#a87a38" strokeWidth=".6" />
         <path className="loop loop-l" d="M100 59 C70 4 6 14 14 58 C20 98 70 88 100 59Z M100 59 C76 32 40 30 36 54 C34 72 70 76 100 59Z" fillRule="evenodd" fill="url(#rb2)" stroke="#a87a38" strokeWidth=".6" />
@@ -63,30 +64,17 @@ export default function Intro({ onReveal, onDone }) {
   const reveal = () => { if (!revealed.current) { revealed.current = true; onReveal(); } };
   const finish = () => { clear(); reveal(); setGone(true); setTimeout(onDone, T.fade); };
 
-  // Envelope away + ribbon untie happen together, then the drapes part.
-  const part = (delay = 0) => {
-    let t = delay;
-    after(t, () => setStage('leaving'));
-    t += T.leave; after(t, () => { setStage('curtains'); reveal(); });
-    t += T.curtains; after(t, finish);
-  };
-
   const open = () => {
-    if (started.current) {
-      // Already read the card? A tap moves straight on.
-      if (stage === 'out') { clear(); part(); }
-      return;
-    }
+    if (started.current) return;
     started.current = true;
     Music.play(); // inside the tap, so browsers allow it
     if (reduced.current) {
-      setStage('leaving'); after(300, () => { setStage('curtains'); reveal(); }); after(700, finish); return;
+      setStage('curtains'); reveal(); after(400, finish); return;
     }
     setStage('opening');
-    let t = T.flap;
-    after(t, () => setStage('peek'));
-    t += T.peek; after(t, () => setStage('out'));
-    part(t + T.out + T.hold);
+    // The drapes start drawing while the ribbon is still sweeping away.
+    after(T.release, () => { setStage('curtains'); reveal(); });
+    after(T.release + T.curtains, finish);
   };
 
   const skip = () => {
@@ -158,7 +146,7 @@ export default function Intro({ onReveal, onDone }) {
         </div>
 
         <div className="intro-foot">
-          <p className="intro-hint">{stage === 'out' ? 'Tap the card to enter' : 'Tap the seal to open'}</p>
+          <p className="intro-hint">Tap the seal to open</p>
           <button type="button" className="intro-skip" onClick={skip}>Skip</button>
         </div>
       </div>

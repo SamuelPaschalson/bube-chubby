@@ -1,7 +1,7 @@
 /* ================================================================
    THE OPENING — ivory & champagne drapes tied with a ribbon, a single-sided envelope, a rose-gold seal.
    Choreography is driven by [data-stage] on .intro:
-     closed → opening → peek → out → leaving → untie → curtains
+     closed → opening → peek → out → leaving → curtains
    ================================================================ */
 
 .intro {
@@ -13,8 +13,13 @@
   z-index: 3000;
   overflow: hidden;
   color: #5a3f33;
-  background: #efe4cf;
-  transition: opacity 0.5s ease;
+  background-color: #efe4cf;
+  transition: opacity 0.7s ease, background-color 0.4s ease;
+}
+/* once the drapes start to move, the live site shows through the gap */
+.intro[data-stage='leaving'],
+.intro[data-stage='curtains'] {
+  background-color: transparent;
 }
 .intro.is-gone {
   opacity: 0;
@@ -37,6 +42,19 @@
 }
 .drape--l { left: 0; }
 .drape--r { right: 0; }
+.drape {
+  transition: transform 0.85s cubic-bezier(0.45, 0, 0.25, 1);
+  will-change: transform;
+}
+/* as the bow is pulled, the drapes ease a hair apart: a sliver of light at the seam */
+.intro[data-stage='leaving'] .drape--l,
+.intro[data-stage='curtains'] .drape--l { transform: translateX(-0.9%); }
+.intro[data-stage='leaving'] .drape--r,
+.intro[data-stage='curtains'] .drape--r { transform: translateX(0.9%); }
+/* gathered drapes glide off the edges as the opening hands over to the site */
+.intro.is-gone .drape { transition: transform 0.7s cubic-bezier(0.55, 0, 0.75, 0.3); }
+.intro.is-gone .drape--l { transform: translateX(-24%); }
+.intro.is-gone .drape--r { transform: translateX(24%); }
 .folds {
   position: absolute;
   inset: 0;
@@ -66,39 +84,43 @@
   --tx: calc(var(--j) * (1 - var(--g)) * 100%);
   transform-origin: 100% 0;
 }
-/* deepening shadow between folds as the cloth bunches */
+/* deepening shadow between folds as the cloth bunches (opacity only, so it
+   stays on the compositor and never stutters) */
 .fold::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(110, 76, 34, 0);
+  background: linear-gradient(90deg, rgba(110, 76, 34, 0.42), rgba(110, 76, 34, 0.12) 50%, rgba(110, 76, 34, 0.42));
+  opacity: 0;
   pointer-events: none;
 }
 
+/* Smooth, continuous pull: no velocity jumps between keyframes, the hem lags
+   the rod a little (skew), and the cloth overshoots a touch then settles. */
 .intro[data-stage='curtains'] .drape--l .fold {
-  animation: drawL 2.7s cubic-bezier(0.5, 0.04, 0.22, 1) var(--delay) both;
+  animation: drawL 2.2s cubic-bezier(0.62, 0.02, 0.28, 1) var(--delay) both;
 }
 .intro[data-stage='curtains'] .drape--r .fold {
-  animation: drawR 2.7s cubic-bezier(0.5, 0.04, 0.22, 1) var(--delay) both;
+  animation: drawR 2.2s cubic-bezier(0.62, 0.02, 0.28, 1) var(--delay) both;
 }
 .intro[data-stage='curtains'] .fold::after {
-  animation: foldShade 2.7s ease-in-out var(--delay) both;
+  animation: foldShade 2.2s ease-in-out var(--delay) both;
 }
 @keyframes drawL {
   0% { transform: translateX(0) scaleX(1) skewX(0deg); }
-  28% { transform: translateX(calc(var(--tx) * 0.16)) scaleX(0.94) skewX(6deg); }
-  70% { transform: translateX(calc(var(--tx) * 0.82)) scaleX(0.32) skewX(2.5deg); }
+  35% { transform: translateX(calc(var(--tx) * 0.3)) scaleX(0.8) skewX(4deg); }
+  82% { transform: translateX(calc(var(--tx) * 1.015)) scaleX(calc(var(--g) * 0.92)) skewX(-0.8deg); }
   100% { transform: translateX(var(--tx)) scaleX(var(--g)) skewX(0deg); }
 }
 @keyframes drawR {
   0% { transform: translateX(0) scaleX(1) skewX(0deg); }
-  28% { transform: translateX(calc(var(--tx) * 0.16)) scaleX(0.94) skewX(-6deg); }
-  70% { transform: translateX(calc(var(--tx) * 0.82)) scaleX(0.32) skewX(-2.5deg); }
+  35% { transform: translateX(calc(var(--tx) * 0.3)) scaleX(0.8) skewX(-4deg); }
+  82% { transform: translateX(calc(var(--tx) * 1.015)) scaleX(calc(var(--g) * 0.92)) skewX(0.8deg); }
   100% { transform: translateX(var(--tx)) scaleX(var(--g)) skewX(0deg); }
 }
 @keyframes foldShade {
-  0% { background: rgba(110, 76, 34, 0); }
-  100% { background: rgba(110, 76, 34, 0.3); }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* warm stage light behind the envelope */
@@ -110,6 +132,7 @@
   background: radial-gradient(48% 46% at 50% 56%, rgba(255, 252, 240, 0.7), rgba(255, 252, 240, 0) 72%);
   transition: opacity 1.2s ease;
 }
+.intro[data-stage='leaving'] .intro-spot,
 .intro[data-stage='curtains'] .intro-spot {
   opacity: 0;
 }
@@ -124,7 +147,7 @@
   z-index: 6;
   background: linear-gradient(180deg, #f2d9a0, #b98a45 55%, #8a5f27);
   box-shadow: 0 2px 6px rgba(90, 60, 25, 0.35);
-  transition: transform 0.9s var(--ease-env) 2.1s;
+  transition: transform 1s cubic-bezier(0.5, 0, 0.3, 1) 0.7s;
 }
 .valance {
   position: absolute;
@@ -135,7 +158,7 @@
   z-index: 4;
   background: linear-gradient(180deg, #f8f1e3, #e9d7b5);
   box-shadow: inset 0 -3px 0 #c9a063, 0 10px 22px rgba(90, 60, 25, 0.3);
-  transition: transform 0.9s var(--ease-env) 2.1s;
+  transition: transform 1s cubic-bezier(0.5, 0, 0.3, 1) 0.7s;
 }
 .valance::after {
   content: '';
@@ -174,12 +197,12 @@
 .tie .tail-l { transform-origin: 98px 66px; }
 .tie .tail-r { transform-origin: 102px 66px; }
 .tie .band { transform-origin: 100px 59px; }
-.intro[data-stage='untie'] .tie .loop-l { animation: loopL 0.9s cubic-bezier(.5,0,.3,1) both; }
-.intro[data-stage='untie'] .tie .loop-r { animation: loopR 0.9s cubic-bezier(.5,0,.3,1) both; }
-.intro[data-stage='untie'] .tie .tail-l { animation: tailL 1.1s cubic-bezier(.4,0,.3,1) 0.15s both; }
-.intro[data-stage='untie'] .tie .tail-r { animation: tailR 1.1s cubic-bezier(.4,0,.3,1) 0.15s both; }
-.intro[data-stage='untie'] .tie .knot { animation: knotGo 0.6s ease 0.1s both; }
-.intro[data-stage='untie'] .tie .band { animation: bandGo 0.8s ease 0.45s both; }
+.intro[data-stage='leaving'] .tie .loop-l { animation: loopL 0.7s cubic-bezier(.5,0,.3,1) 0.1s both; }
+.intro[data-stage='leaving'] .tie .loop-r { animation: loopR 0.7s cubic-bezier(.5,0,.3,1) 0.1s both; }
+.intro[data-stage='leaving'] .tie .tail-l { animation: tailL 0.8s cubic-bezier(.4,0,.3,1) 0.2s both; }
+.intro[data-stage='leaving'] .tie .tail-r { animation: tailR 0.8s cubic-bezier(.4,0,.3,1) 0.2s both; }
+.intro[data-stage='leaving'] .tie .knot { animation: knotGo 0.5s ease 0.15s both; }
+.intro[data-stage='leaving'] .tie .band { animation: bandGo 0.55s ease 0.3s both; }
 .intro[data-stage='curtains'] .tie { opacity: 0; }
 @keyframes loopL { 0% { transform: none; opacity: 1; } 60% { transform: rotate(-14deg) scale(.7, .9); opacity: 1; } 100% { transform: rotate(-38deg) scale(.1, .3); opacity: 0; } }
 @keyframes loopR { 0% { transform: none; opacity: 1; } 60% { transform: rotate(14deg) scale(.7, .9); opacity: 1; } 100% { transform: rotate(38deg) scale(.1, .3); opacity: 0; } }
@@ -276,8 +299,11 @@
   opacity: 0;
   animation: none;
 }
+.intro[data-stage='out'] .intro-hint {
+  opacity: 1;
+  animation: introHint 2.4s ease-in-out 0.6s infinite both;
+}
 .intro[data-stage='leaving'] .intro-skip,
-.intro[data-stage='untie'] .intro-skip,
 .intro[data-stage='curtains'] .intro-skip {
   opacity: 0;
   pointer-events: none;
@@ -300,10 +326,11 @@
   filter: blur(6px);
 }
 .intro[data-stage='leaving'] .env-wrap,
-.intro[data-stage='untie'] .env-wrap,
 .intro[data-stage='curtains'] .env-wrap {
-  transform: translateY(16vh) scale(0.92);
+  transform: translateY(-5vh) scale(1.05);
   opacity: 0;
+  pointer-events: none;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.6s ease;
 }
 
 .envelope {
@@ -358,7 +385,7 @@
   outline-offset: -2.6cqw;
   box-shadow: 0 -4px 18px rgba(30, 6, 14, 0.25);
   transform: translateY(0);
-  transition: transform 1s var(--ease-env);
+  transition: transform 0.75s var(--ease-env);
 }
 .lt-pre {
   font: 500 1.9cqw/1.4 'Jost', sans-serif;
@@ -405,10 +432,9 @@
 }
 .intro[data-stage='out'] .env-letter,
 .intro[data-stage='leaving'] .env-letter,
-.intro[data-stage='untie'] .env-letter,
 .intro[data-stage='curtains'] .env-letter {
   transform: translateY(-122%);
-  transition-duration: 1.2s;
+  transition-duration: 0.9s;
 }
 
 /* the front of the envelope — the pocket that hides the letter */
@@ -430,7 +456,7 @@
   z-index: 4;
   transform-origin: top center;
   transform-style: preserve-3d;
-  transition: transform 1s var(--ease-env), z-index 0s linear 0.45s;
+  transition: transform 0.7s var(--ease-env), z-index 0s linear 0.3s;
 }
 .env-flap .face {
   position: absolute;
@@ -511,6 +537,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .drape,
   .tie *,
   .env-letter,
   .env-flap,

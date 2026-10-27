@@ -4,8 +4,7 @@ import { Reveal } from '../components/ui';
 import { ArchPhoto, first } from './shared';
 import { useRsvpService } from '../features/rsvp/RsvpServiceProvider';
 
-const MAX = SITE.rsvp.maxSeats;
-const initial = { fullName: '', attendance: 'attending', guestOf: '', seats: 1, phone: '', email: '', messageToCouple: '' };
+const initial = { fullName: '', attendance: 'attending', guestOf: '', phone: '', email: '', messageToCouple: '' };
 
 export default function Rsvp() {
   const service = useRsvpService();
@@ -35,7 +34,7 @@ export default function Rsvp() {
     try {
       await service.submit({
         ...form,
-        seats: attending ? Math.min(MAX, Number(form.seats) || 1) : 0,
+        seats: attending ? 1 : 0, // every guest replies for themselves
         submittedAt: new Date().toISOString(),
       });
       setStatus('success');
@@ -50,7 +49,7 @@ export default function Rsvp() {
         <div>
           <Reveal as="p" className="eyebrow">RSVP</Reveal>
           <Reveal as="h1">Will you join us?</Reveal>
-          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Each invitation covers a maximum of {MAX} seats. This is an adults-only celebration.</Reveal>
+          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every guest replies individually, so if you are coming with someone, ask them to send their own RSVP. This is an adults-only celebration.</Reveal>
           {SITE.rsvp.deadline && <p className="form-note">Kindly reply by <b>{SITE.rsvp.deadline}</b>.</p>}
         </div>
         <ArchPhoto src={SITE.photos.rsvp} alt="The couple laughing together" />
@@ -81,23 +80,13 @@ export default function Rsvp() {
                 </div>
               </fieldset>
 
-              <div className="field-row">
-                <div className={`field${errors.guestOf ? ' has-error' : ''}`}>
-                  <label htmlFor="guestOf">Whose guest are you?</label>
-                  <select id="guestOf" name="guestOf" value={form.guestOf} onChange={change} aria-invalid={!!errors.guestOf}>
-                    <option value="" disabled>Select one</option>
-                    {SITE.rsvp.form.guestOfOptions.map((o) => <option key={o}>{o}</option>)}
-                  </select>
-                  <p className="form-error">{errors.guestOf}</p>
-                </div>
-                {attending && (
-                  <div className="field">
-                    <label htmlFor="seats">Seats needed (max {MAX})</label>
-                    <select id="seats" name="seats" value={form.seats} onChange={change}>
-                      {Array.from({ length: MAX }, (_, n) => n + 1).map((n) => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </div>
-                )}
+              <div className={`field${errors.guestOf ? ' has-error' : ''}`}>
+                <label htmlFor="guestOf">Whose guest are you?</label>
+                <select id="guestOf" name="guestOf" value={form.guestOf} onChange={change} aria-invalid={!!errors.guestOf}>
+                  <option value="" disabled>Select one</option>
+                  {SITE.rsvp.form.guestOfOptions.map((o) => <option key={o}>{o}</option>)}
+                </select>
+                <p className="form-error">{errors.guestOf}</p>
               </div>
 
               <div className="field-row">

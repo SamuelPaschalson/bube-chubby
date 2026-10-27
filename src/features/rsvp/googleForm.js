@@ -22,8 +22,8 @@ export function buildGoogleFormBody(submission) {
   put('name', submission.fullName);
   put('attending', attending ? form.attendingOptions.yes : form.attendingOptions.no);
   put('guestOf', submission.guestOf);
-  // The form's Seats question only offers 1 or 2, so a decline leaves it blank.
-  if (attending) put('seats', String(submission.seats));
+  // One RSVP per guest: an acceptance is always 1 seat, a decline leaves it blank.
+  if (attending) put('seats', '1');
   put('phone', digitsOnlyPhone);
   put('email', submission.email);
   put('comments', (submission.messageToCouple ?? '').trim());

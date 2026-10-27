@@ -9,7 +9,7 @@
  * @property {string} email
  * @property {Attendance} attendance
  * @property {string} guestOf   Which family contact the guest belongs to (e.g. "Okey · Ezepue family").
- * @property {number} seats     Seats needed, 1 or 2 (0 when declining).
+ * @property {number} seats     Always 1 when attending (one RSVP per guest), 0 when declining.
  * @property {string} messageToCouple
  *
  * @typedef {Object} RsvpReceipt

@@ -1,6 +1,32 @@
+import { useEffect, useState } from 'react';
 import SITE from '../data/site';
 import { Monogram, Reveal } from '../components/ui';
 import { ArchPhoto, first } from './shared';
+
+/**
+ * One arch that slowly dissolves from the baby photo to today's photo and
+ * back. Tap to switch by hand; the two portraits on the page run out of step
+ * (`offset`) so they never change at the same moment.
+ */
+function ThenNow({ t, offset = 0 }) {
+  const [now, setNow] = useState(false);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    let id;
+    const kick = setTimeout(() => { setNow(true); id = setInterval(() => setNow((v) => !v), 4200); }, 1800 + offset * 1400);
+    return () => { clearTimeout(kick); clearInterval(id); };
+  }, [paused, offset]);
+  const label = now ? 'Now' : 'Then';
+  return (
+    <button type="button" className={`tn-morph${now ? ' is-now' : ''}`} onClick={() => { setPaused(true); setNow((v) => !v); }}
+      aria-label={`${t.who}: showing ${label.toLowerCase()}. Tap to see ${now ? 'the baby photo' : 'today'}.`}>
+      <img className="tn-then" src={t.baby} alt="" loading="lazy" decoding="async" style={{ objectPosition: t.babyFocus }} />
+      <img className="tn-now" src={t.now} alt="" loading="lazy" decoding="async" style={{ objectPosition: t.nowFocus }} />
+      <span className="tn-tag" aria-hidden="true"><b className={now ? '' : 'on'}>Then</b><i /><b className={now ? 'on' : ''}>Now</b></span>
+    </button>
+  );
+}
 
 export default function Story() {
   const st = SITE.story;
@@ -47,15 +73,9 @@ export default function Story() {
           <div className="thennow">
             {(st.thenNow.length ? st.thenNow : [{ who: first(SITE.couple.bride) }, { who: first(SITE.couple.groom) }]).map((t, k) => (
               <Reveal className="tn-pair" delay={k * 0.1} key={t.who}>
-                <div className="tn-frames">
-                  {[['Then', t.baby], ['Now', t.now]].map(([label, src]) => (
-                    <figure className="tn-frame" key={label}>
-                      {src ? <img src={src} alt={`${t.who}, ${label.toLowerCase()}`} loading="lazy" /> : <div className="tn-empty"><Monogram size={54} /><small>Photo coming soon</small></div>}
-                      <figcaption>{label}</figcaption>
-                    </figure>
-                  ))}
-                  <span className="tn-arrow" aria-hidden="true">&rarr;</span>
-                </div>
+                {t.baby && t.now ? <ThenNow t={t} offset={k} /> : (
+                  <div className="tn-empty"><Monogram size={54} /><small>Photo coming soon</small></div>
+                )}
                 <p className="tn-who">{t.who}</p>
               </Reveal>
             ))}

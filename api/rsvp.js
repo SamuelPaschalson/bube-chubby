@@ -21,7 +21,6 @@ const ATTENDING = {
   attending: process.env.GOOGLE_FORM_YES ?? 'Yes',
   declined: process.env.GOOGLE_FORM_NO ?? 'No',
 };
-const MAX_SEATS = 2;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const parse = (body) => {
@@ -41,7 +40,8 @@ async function sendToGoogleForm(p) {
   put('name', p.fullName);
   put('attending', attending ? ATTENDING.attending : ATTENDING.declined);
   put('guestOf', p.guestOf);
-  if (attending) put('seats', String(Math.min(MAX_SEATS, Math.max(1, Number(p.seats) || 1))));
+  // One RSVP per guest: an acceptance is always 1 seat.
+  if (attending) put('seats', '1');
   put('phone', (p.phone ?? '').replace(/[^\d]/g, ''));
   put('email', p.email);
   put('comments', (p.messageToCouple ?? '').trim());
@@ -74,7 +74,6 @@ export default async function handler(req, res) {
   const p = parse(req.body);
   if (!p.fullName || String(p.fullName).trim().length < 2) return res.status(400).json({ error: 'A name is required.' });
   if (p.email && !EMAIL.test(p.email)) return res.status(400).json({ error: 'That email address looks wrong.' });
-  if (p.attendance === 'attending' && Number(p.seats) > MAX_SEATS) return res.status(400).json({ error: `A maximum of ${MAX_SEATS} seats per invitation.` });
 
   try {
     await sendToGoogleForm(p);

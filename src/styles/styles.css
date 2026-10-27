@@ -1455,7 +1455,8 @@ button.arch {
 .person-role:first-child { margin-top: 20px; }
 
 /* ---------------- invitation card (coded) ---------------- */
-.invite-card { max-width: 440px; margin-inline: auto; padding: 14px; background: linear-gradient(160deg, #fffaf0, #f3e6cf); border: 1px solid rgba(185,138,69,.5); box-shadow: 0 24px 50px -20px rgba(59,23,39,.45); }
+.invite-card { max-width: 440px; margin: 0 auto; padding: 10px; background: #fffdf8; border: 1px solid rgba(185,138,69,.5); box-shadow: 0 24px 50px -20px rgba(59,23,39,.45); }
+.invite-card img { width: 100%; height: auto; }
 .invite-card .ic-inner { padding: clamp(24px,5vw,40px) clamp(18px,4vw,32px); border: 1px solid rgba(185,138,69,.55); text-align: center; color: #6e2c45; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .ic-pre { font: 500 10.5px/1.7 'Jost', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #8a6a5a; margin: 12px 0 8px; }
 .ic-name { font: 400 clamp(34px,8vw,46px)/1.1 'Pinyon Script', cursive; background: linear-gradient(100deg,#8a5a22,#cfa461 42%,#9a6b2b 70%,#c89a52); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 2px 6px; }
@@ -1476,13 +1477,23 @@ button.arch {
 
 /* ---------------- story: then & now ---------------- */
 .thennow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: clamp(24px,4vw,48px); margin-top: clamp(24px,4vw,40px); }
-.tn-frames { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.tn-frame { margin: 0; text-align: center; }
-.tn-frame img, .tn-empty { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 120px 120px 6px 6px; background: #f3e6e0; border: 1px solid rgba(185,138,69,.4); }
+.tn-pair { max-width: 380px; width: 100%; margin-inline: auto; }
+.tn-morph, .tn-empty { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 999px 999px 6px 6px; background: #f3e6e0; border: 1px solid rgba(185,138,69,.4); box-shadow: 0 24px 48px -26px rgba(59,23,39,.5); }
+.tn-morph { padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tn-morph:focus-visible { outline: 2px solid #b98a45; outline-offset: 6px; }
+/* the baby photo dissolves into today's with a slow, soft zoom, like a memory coming into focus */
+.tn-morph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 1.6s cubic-bezier(.4,0,.2,1), transform 4.8s cubic-bezier(.2,.6,.3,1), filter 1.6s ease; }
+.tn-then { filter: sepia(.18) saturate(.9); }
+.tn-now { opacity: 0; transform: scale(1.08); }
+.tn-morph.is-now .tn-then { opacity: 0; transform: scale(1.06); filter: sepia(.4) blur(2px); }
+.tn-morph.is-now .tn-now { opacity: 1; transform: scale(1); }
+.tn-tag { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 99px; background: rgba(255,250,242,.88); border: 1px solid rgba(185,138,69,.5); box-shadow: 0 4px 12px rgba(59,23,39,.18); }
+.tn-tag b { font: 500 10px/1 'Jost', sans-serif; letter-spacing: .28em; text-transform: uppercase; color: #b9a596; transition: color .8s ease; }
+.tn-tag b.on { color: #6e2c45; }
+.tn-tag i { width: 22px; height: 1px; background: linear-gradient(90deg, #b98a45, #b27f84); }
 .tn-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #b27f84; }
 .tn-empty small { font: 500 10px/1.4 'Jost', sans-serif; letter-spacing: .2em; text-transform: uppercase; }
-.tn-frame figcaption { margin-top: 8px; font: 500 11px/1 'Jost', sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #8a6a5a; }
-.tn-arrow { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #fffaf2; border: 1px solid rgba(185,138,69,.6); color: #b98a45; box-shadow: 0 4px 10px rgba(59,23,39,.15); }
+@media (prefers-reduced-motion: reduce) { .tn-morph img { transition-duration: .01ms; } }
 .tn-who { text-align: center; margin-top: 10px; font: 400 34px/1.1 'Pinyon Script', cursive; color: #6e2c45; }
 
 .field.has-error input[type='email'], .field.has-error select { border-color: #b3261e; }

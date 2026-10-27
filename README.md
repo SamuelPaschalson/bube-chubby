@@ -15,4 +15,4 @@ was authored; `npm run build` produces the Vite equivalent).
   bridesmaids, story text, hashtag, RSVP deadline, `public/song.mp3`).
 - **Opening (envelope + drape curtains):** `src/components/Intro.jsx`, `src/styles/intro.css`
   (`FOLDS` = number of folds, `--g` = how tightly the open curtains bunch). `?intro=1` replays it.
-- **RSVP:** writes to the Google Form (see RSVP-SETUP.md), max 2 seats.
+- **RSVP:** writes to the Google Form (see RSVP-SETUP.md), one RSVP per guest (each person replies individually).

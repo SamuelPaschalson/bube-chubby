@@ -17,7 +17,7 @@ export const SITE = {
     brideShort: 'Precious',
     groomShort: 'Edward',
     nickname: 'Bube & Chubby', // printed under the monogram on the invitation
-    hashtag: '#BubeAndChubby', // TODO: confirm the couple's hashtag
+    hashtag: '#BC2027',
   },
 
   // Used by the countdown. Ceremony: 12 noon prompt, West Africa Time.
@@ -67,7 +67,8 @@ export const SITE = {
 
   // The wedding is an adults-only celebration: no children's party.
   adultsOnly: true,
-  adultsNote: 'This is an adults-only celebration. With love, we are unable to accommodate children at the ceremony or the reception.',
+  adultsNote:
+    'This is an adults-only celebration. With love, we are unable to accommodate children at the ceremony or the reception.',
 
   // Colours of the day, as printed on the invitation.
   palette: [
@@ -78,8 +79,20 @@ export const SITE = {
 
   // Who to call / RSVP to. `wa` is the number in international format, no "+".
   contacts: [
-    { name: 'Okey', role: 'Ezepue family', display: '0803 598 4116', tel: '+2348035984116', wa: '2348035984116' },
-    { name: 'Francis', role: 'Agbazue family', display: '0802 314 9199', tel: '+2348023149199', wa: '2348023149199' },
+    {
+      name: 'Okey',
+      role: 'Ezepue family',
+      display: '0803 598 4116',
+      tel: '+2348035984116',
+      wa: '2348035984116',
+    },
+    {
+      name: 'Francis',
+      role: 'Agbazue family',
+      display: '0802 314 9199',
+      tel: '+2348023149199',
+      wa: '2348023149199',
+    },
   ],
 
   /**
@@ -91,10 +104,11 @@ export const SITE = {
    */
   rsvp: {
     deadline: '', // TODO: e.g. '30 November 2026' (leave empty to hide)
-    maxSeats: 2, // seats per invitation, including the guest
+    // Every guest replies for themselves: one RSVP = one seat.
     form: {
       // "Bube and Chubby 2027" Google Form (responses land in its Sheet).
-      action: 'https://docs.google.com/forms/d/e/1FAIpQLScfYRWaazHXNNrCgxzh09nSy4GZOSLgNg59S2A00-xmzyOJrA/formResponse',
+      action:
+        'https://docs.google.com/forms/d/e/1FAIpQLScfYRWaazHXNNrCgxzh09nSy4GZOSLgNg59S2A00-xmzyOJrA/formResponse',
       fields: {
         name: 'entry.786368817',
         attending: 'entry.1304438325',
@@ -117,6 +131,9 @@ export const SITE = {
    */
   song: 'song.mp3',
 
+  // The printed invitation card, shown on The Wedding Day page.
+  invitation: 'images/invitation.jpg',
+
   // Hero + page photographs (engagement session, F10 Studio, 20 Sept 2026).
   photos: {
     hero: 'images/eng-11',
@@ -128,44 +145,123 @@ export const SITE = {
   },
 
   gallery: [
-    { src: 'images/eng-10', alt: 'Precious and Edward facing the camera, hands joined' },
+    {
+      src: 'images/eng-10',
+      alt: 'Precious and Edward facing the camera, hands joined',
+    },
     { src: 'images/eng-02', alt: 'Precious and Edward on a stone balustrade' },
     { src: 'images/eng-01', alt: 'A close, tender portrait of the couple' },
-    { src: 'images/eng-07', alt: 'The couple standing together on a garden path' },
+    {
+      src: 'images/eng-07',
+      alt: 'The couple standing together on a garden path',
+    },
     { src: 'images/eng-03', alt: 'Precious framed by a carved stone archway' },
     { src: 'images/eng-09', alt: 'The couple laughing together' },
     { src: 'images/eng-11', alt: 'Her engagement ring, resting on his cheek' },
     { src: 'images/eng-08', alt: 'Walking hand in hand across the lawn' },
     { src: 'images/eng-05', alt: 'Together against a red-brick wall' },
     { src: 'images/eng-04', alt: 'Edward seated on the balustrade' },
-    { src: 'images/eng-06', alt: 'Precious seated, Edward standing, in front of the brick wall' },
+    {
+      src: 'images/eng-06',
+      alt: 'Precious seated, Edward standing, in front of the brick wall',
+    },
     { src: 'images/eng-12', alt: 'The couple beneath the stone arches' },
   ],
 
   /* ---------------------------------------------------------- */
   /*  OUR PEOPLE                                                 */
   /* ---------------------------------------------------------- */
-  // TODO: bridesmaids haven't sent pictures yet. Add them here as they arrive:
-  //   { name: 'Name', role: 'Chief Bridesmaid', photos: ['images/their-photo.jpg'] }
-  // Names come from the photo file names. Cards with two photos flip on tap.
+  // TODO: new portraits for Amanda, Nnenna, Ogo and Oma. Add them as they arrive:
+  //   photos: ['images/party-bridesmaid-name.jpg']  (an empty list shows "Portrait coming soon")
+  // Cards with two photos flip on tap.
   bridesmaids: [
-    { name: 'Ify', role: 'Chief Bridesmaid', photos: ['images/party-bridesmaid-ify.jpg'], focus: '75% 30%' },
-    { name: 'Amanda', role: 'Bridesmaid', photos: ['images/party-bridesmaid-amanda.jpg'], focus: '50% 62%' },
-    { name: 'Favour', role: 'Bridesmaid', photos: ['images/party-bridesmaid-favour.jpg'], focus: '50% 25%' },
-    { name: 'Kenny', role: 'Bridesmaid', photos: ['images/party-bridesmaid-kenny.jpg'], focus: '35% 55%' },
-    { name: 'Nnenna', role: 'Bridesmaid', photos: ['images/party-bridesmaid-nnenna-1.jpg', 'images/party-bridesmaid-nnenna-2.jpg'], focus: '60% 30%' },
-    { name: 'Ogo', role: 'Bridesmaid', photos: ['images/party-bridesmaid-ogo-1.jpg', 'images/party-bridesmaid-ogo-2.jpg'], focus: '50% 28%' },
-    { name: 'Oma', role: 'Bridesmaid', photos: ['images/party-bridesmaid-oma.jpg'], focus: '50% 30%' },
-    { name: 'Onyi', role: 'Bridesmaid', photos: ['images/party-bridesmaid-onyi-1.jpg', 'images/party-bridesmaid-onyi-2.jpg'], focus: '50% 38%' },
+    {
+      name: 'Ify',
+      role: 'Chief Bridesmaid',
+      photos: ['images/party-bridesmaid-ify.jpg'],
+      focus: '50% 22%',
+    },
+    {
+      name: 'Amanda',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-amanda.jpg'],
+      focus: '50% 62%',
+    },
+    {
+      name: 'Favour',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-favour.jpg'],
+      focus: '30% 40%',
+    },
+    {
+      name: 'Kenny',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-kenny.jpg'],
+      focus: '52% 26%',
+    },
+    {
+      name: 'Nnenna',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-nnenna.jpg'],
+      focus: '60% 30%',
+    },
+    {
+      name: 'Ogo',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-ogo.jpg'],
+      focus: '52% 28%',
+    },
+    {
+      name: 'Oma',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-oma.jpg'],
+      focus: '52% 30%',
+    },
+    {
+      name: 'Onyi',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-onyi.jpg'],
+      focus: '50% 28%',
+    },
   ],
 
   groomsmen: [
-    { name: 'Zaiki', role: 'Best Man', photos: ['images/party-groomsman-zaiki.jpg'], focus: '50% 40%' },
-    { name: 'Nedu', role: 'Groomsman', photos: ['images/party-groomsman-nedu-1.jpg', 'images/party-groomsman-nedu-2.jpg'], focus: '50% 42%' },
-    { name: 'Blosomart', role: 'Groomsman', photos: ['images/party-groomsman-blosomart.jpg'], focus: '55% 38%' },
-    { name: 'AVB', role: 'Groomsman', photos: ['images/party-groomsman-avb.jpg'], focus: '50% 30%' },
-    { name: 'Leschar', role: 'Groomsman', photos: ['images/party-groomsman-leschar.jpg'], focus: '45% 38%' },
-    { name: 'Optimistic', role: 'Groomsman', photos: ['images/party-groomsman-optimistic.jpg'], focus: '45% 50%' },
+    {
+      name: 'Zaiki',
+      role: 'Best Man',
+      photos: ['images/party-groomsman-zaiki.jpg'],
+      focus: '50% 40%',
+    },
+    {
+      name: 'Nedu',
+      role: 'Groomsman',
+      photos: ['images/party-groomsman-nedu-1.jpg'],
+      focus: '50% 42%',
+    },
+    {
+      name: 'Blosomart',
+      role: 'Groomsman',
+      photos: ['images/party-groomsman-blosomart.jpg'],
+      focus: '55% 38%',
+    },
+    {
+      name: 'AVB',
+      role: 'Groomsman',
+      photos: ['images/party-groomsman-avb.jpg'],
+      focus: '50% 30%',
+    },
+    {
+      name: 'Leschar',
+      role: 'Groomsman',
+      photos: ['images/party-groomsman-leschar.jpg'],
+      focus: '45% 38%',
+    },
+    {
+      name: 'Optimistic',
+      role: 'Groomsman',
+      photos: ['images/party-groomsman-optimistic.jpg'],
+      focus: '45% 50%',
+    },
   ],
 
   /* ---------------------------------------------------------- */
@@ -234,14 +330,37 @@ I thought I was booking a flight to meet a beautiful woman. I didn’t know I wa
 And soon, the girl I found on Instagram will become the woman I get to call my wife. ❤️💍`,
       },
     ],
-    pullquote: 'I thought I was booking a flight to meet a beautiful woman. I didn’t know I was taking the first step towards the rest of my life.',
-    // Baby-to-adult photo transition. Add pairs as the photos arrive, e.g.
-    //   { who: 'Bube', baby: 'images/bube-baby.jpg', now: 'images/bube-now.jpg' }
-    // Leave the list empty and a "photos coming soon" placeholder is shown.
-    thenNow: [],
+    pullquote:
+      'I thought I was booking a flight to meet a beautiful woman. I didn’t know I was taking the first step towards the rest of my life.',
+    // Baby-to-adult photo transition: each frame dissolves from `baby` to `now`.
+    // `babyFocus` / `nowFocus` keep the face in frame when the photo is cropped.
+    thenNow: [
+      {
+        who: 'Precious',
+        baby: 'images/then-bride.jpg',
+        babyFocus: '50% 34%',
+        now: 'images/eng-03-800.jpg',
+        nowFocus: '50% 50%',
+      },
+      {
+        who: 'Edward',
+        baby: 'images/then-groom.jpg',
+        babyFocus: '50% 30%',
+        now: 'images/eng-04-800.jpg',
+        nowFocus: '50% 40%',
+      },
+    ],
     milestones: [
-      { date: '20 September 2026', title: 'The engagement session', text: 'A golden afternoon with F10 Studio — the photographs you see throughout this site.' },
-      { date: '2 January 2027', title: 'The wedding day', text: 'St Thomas Aquinas Catholic Church, Awka, at 12 noon prompt, with the reception following at 3:00 pm at Annabel Event Center.' },
+      {
+        date: '20 September 2026',
+        title: 'The engagement session',
+        text: 'A golden afternoon with F10 Studio — the photographs you see throughout this site.',
+      },
+      {
+        date: '2 January 2027',
+        title: 'The wedding day',
+        text: 'St Thomas Aquinas Catholic Church, Awka, at 12 noon prompt, with the reception following at 3:00 pm at Annabel Event Center.',
+      },
     ],
   },
 
@@ -256,11 +375,7 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
     },
     {
       q: 'Are children welcome?',
-      a: 'We love your little ones, but this is an adults-only celebration, with no children\'s party. Thank you for understanding and for arranging a sitter for the day.',
-    },
-    {
-      q: 'Can I bring a plus-one?',
-      a: 'Each invitation covers a maximum of two seats, the guest named on it and one other adult. The RSVP form will not accept more than two.',
+      a: "We love your little ones, but this is an adults-only celebration, with no children's party. Thank you for understanding and for arranging a sitter for the day.",
     },
     {
       q: 'What are the colours of the day?',
@@ -268,15 +383,23 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
     },
     {
       q: 'How do I RSVP?',
-      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. A quick message goes a long way in helping us plan.',
+      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every guest replies individually, so if you are coming with someone, ask them to send their own RSVP.',
     },
     {
       q: 'I am travelling in. What should I know?',
       a: 'Both the church and the reception are in Awka, the capital of Anambra State, so you can settle in one place. If you are flying, ask the family contacts for the easiest route from your city and for arrival tips on the day.',
     },
     {
+      q: 'Is there parking?',
+      a: 'Yes. There is enough parking space for everybody at both the church and the reception, so drive in and park.',
+    },
+    {
       q: 'Can I take photos?',
-      a: 'Please let our photographers do their work during the ceremony, and enjoy your phone freely at the reception. Tag the couple with the hashtag so we can find every picture.',
+      a: 'Yes, please do! Take as many as you like at the ceremony and the reception. We only ask that you keep the aisle clear for our photographers.',
+    },
+    {
+      q: 'Where do I post them?',
+      a: 'Tag #BC2027 so we can find every last one.',
     },
   ],
 };

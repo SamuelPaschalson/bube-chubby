@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-/** Wreath monogram "P C" — drawn in code so it stays sharp at any size. */
+/** Wreath monogram "B C" — drawn in code so it stays sharp at any size. */
 export function Monogram({ size = 96, className = '' }) {
   const id = useId().replace(/:/g, '');
   const grad = `url(#${id})`;
@@ -21,7 +21,7 @@ export function Monogram({ size = 96, className = '' }) {
     }
   }
   return (
-    <svg className={`monogram ${className}`} viewBox="0 0 100 100" width={size} height={size} role="img" aria-label="P and C monogram" focusable="false">
+    <svg className={`monogram ${className}`} viewBox="0 0 100 100" width={size} height={size} role="img" aria-label="B and C monogram" focusable="false">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#f0d29a" /><stop offset=".5" stopColor="#b98a45" /><stop offset="1" stopColor="#8a5f27" />
@@ -30,7 +30,7 @@ export function Monogram({ size = 96, className = '' }) {
       <circle cx="50" cy="50" r="47" fill="none" stroke={grad} strokeWidth=".9" />
       <circle cx="50" cy="50" r="44.6" fill="none" stroke={grad} strokeWidth=".4" />
       {leaves}
-      <text x="31" y="61" fontFamily="'Cormorant Garamond', Georgia, serif" fontSize="40" fontWeight="600" fill={grad}>P</text>
+      <text x="31" y="61" fontFamily="'Cormorant Garamond', Georgia, serif" fontSize="40" fontWeight="600" fill={grad}>B</text>
       <text x="47" y="63" fontFamily="'Cormorant Garamond', Georgia, serif" fontSize="40" fontWeight="600" fill={grad}>C</text>
     </svg>
   );

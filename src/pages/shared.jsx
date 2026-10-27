@@ -1,5 +1,5 @@
 import SITE from '../data/site';
-import { Monogram, Photo, Reveal, icons } from '../components/ui';
+import { Photo, Reveal, icons } from '../components/ui';
 
 export const first = (s) => s.split(' ')[0];
 
@@ -49,27 +49,11 @@ export const ArchPhoto = ({ src, alt }) => (
   <Reveal className="arch"><Photo src={src} alt={alt} eager /></Reveal>
 );
 
-/** The wedding invitation, drawn in code so it always matches the site's details. */
+/** The printed wedding invitation card (SITE.invitation). */
 export function InviteCard() {
-  const [e1, e2] = SITE.events;
   return (
-    <div className="invite-card" role="img" aria-label={`Wedding invitation for ${SITE.couple.bride} and ${SITE.couple.groom}, ${SITE.date.long}`}>
-      <div className="ic-inner">
-        <Monogram size={64} />
-        <p className="ic-pre">The Agbazue &amp; Ezepue families<br />cordially invite you to the wedding of their children</p>
-        <p className="ic-name">{SITE.couple.bride}</p>
-        <p className="ic-amp">&amp;</p>
-        <p className="ic-name">{SITE.couple.groom}</p>
-        <hr className="ic-rule" />
-        <p className="ic-date">{SITE.date.long}</p>
-        <div className="ic-cols">
-          <div><b>Ceremony</b><span>{e1.time}</span><span>{e1.venue}</span></div>
-          <div><b>Reception</b><span>{e2.time}</span><span>{e2.venue}</span></div>
-        </div>
-        <p className="ic-city">{SITE.date.city}</p>
-        <p className="ic-adults">Adults only &middot; no children&rsquo;s party</p>
-        <p className="ic-colours">Colours of the day: {SITE.palette.map((c) => c.name).join(' · ')}</p>
-      </div>
-    </div>
+    <figure className="invite-card">
+      <img src={SITE.invitation} alt={`Wedding invitation: the Agbazue and Ezepue families invite you to the wedding of ${SITE.couple.bride} and ${SITE.couple.groom}, ${SITE.date.long}, at ${SITE.events[0].venue}, Awka. Reception follows at ${SITE.events[1].venue}.`} width="771" height="1080" decoding="async" />
+    </figure>
   );
 }

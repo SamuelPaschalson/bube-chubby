@@ -4,12 +4,13 @@ import { Music } from '../lib/audio';
 
 /**
  * THE OPENING
- *   closed → opening → peek → out → leaving → untie → curtains
- * Tap the seal: flap opens, invitation slides out, envelope drifts away, the
- * ribbon bow holding the drapes is untied, then the ivory & champagne drapes
- * part from the centre and the website is revealed behind them.
+ *   closed → opening → peek → out → leaving → curtains
+ * Tap the seal: flap opens, invitation slides out and rests long enough to
+ * read, then the envelope floats away *while* the ribbon bow unties, and the
+ * ivory & champagne drapes part from the centre onto the live website.
+ * Tapping the card while it rests skips straight to the curtains.
  */
-const T = { flap: 900, peek: 900, out: 1700, hold: 2500, leave: 800, untie: 1300, curtains: 3500 }; // ms
+const T = { flap: 600, peek: 650, out: 900, hold: 1400, leave: 850, curtains: 2900, fade: 700 }; // ms
 const FOLDS = 15;
 
 // Fold depth varies a little from fold to fold so the cloth never looks tiled.
@@ -22,7 +23,7 @@ function Drape({ side }) {
         {Array.from({ length: FOLDS }, (_, j) => (
           // j = 0 is the outer edge, FOLDS-1 the leading edge at the centre.
           // The leading edge moves first; the rest follow in a ripple.
-          <i key={j} className="fold" style={{ '--j': j, '--a': amp(j + (side === 'r' ? 5 : 0)), '--delay': `${((FOLDS - 1 - j) * 0.07).toFixed(2)}s` }} />
+          <i key={j} className="fold" style={{ '--j': j, '--a': amp(j + (side === 'r' ? 5 : 0)), '--delay': `${((FOLDS - 1 - j) * 0.045).toFixed(3)}s` }} />
         ))}
       </div>
     </div>
@@ -60,23 +61,32 @@ export default function Intro({ onReveal, onDone }) {
   const after = (ms, fn) => timers.current.push(setTimeout(fn, ms));
   const clear = () => { timers.current.forEach(clearTimeout); timers.current = []; };
   const reveal = () => { if (!revealed.current) { revealed.current = true; onReveal(); } };
-  const finish = () => { clear(); reveal(); setGone(true); setTimeout(onDone, 500); };
+  const finish = () => { clear(); reveal(); setGone(true); setTimeout(onDone, T.fade); };
+
+  // Envelope away + ribbon untie happen together, then the drapes part.
+  const part = (delay = 0) => {
+    let t = delay;
+    after(t, () => setStage('leaving'));
+    t += T.leave; after(t, () => { setStage('curtains'); reveal(); });
+    t += T.curtains; after(t, finish);
+  };
 
   const open = () => {
-    if (started.current) return;
+    if (started.current) {
+      // Already read the card? A tap moves straight on.
+      if (stage === 'out') { clear(); part(); }
+      return;
+    }
     started.current = true;
     Music.play(); // inside the tap, so browsers allow it
     if (reduced.current) {
-      setStage('leaving'); after(400, () => setStage('untie')); after(700, () => setStage('curtains')); after(900, finish); return;
+      setStage('leaving'); after(300, () => { setStage('curtains'); reveal(); }); after(700, finish); return;
     }
     setStage('opening');
     let t = T.flap;
     after(t, () => setStage('peek'));
     t += T.peek; after(t, () => setStage('out'));
-    t += T.out + T.hold; after(t, () => setStage('leaving'));
-    t += T.leave; after(t, () => setStage('untie'));
-    t += T.untie; after(t, () => { setStage('curtains'); reveal(); });
-    t += T.curtains; after(t, finish);
+    part(t + T.out + T.hold);
   };
 
   const skip = () => {
@@ -84,7 +94,7 @@ export default function Intro({ onReveal, onDone }) {
     clear();
     setStage('curtains');
     reveal();
-    after(reduced.current ? 300 : T.curtains - 200, finish);
+    after(reduced.current ? 300 : T.curtains, finish);
   };
 
   useEffect(() => {
@@ -142,13 +152,13 @@ export default function Intro({ onReveal, onDone }) {
             </span>
             <span className="env-seal" aria-hidden="true">
               <span className="seal-ring" />
-              <span className="seal-mono">P<i>&amp;</i>C</span>
+              <span className="seal-mono">B<i>&amp;</i>C</span>
             </span>
           </button>
         </div>
 
         <div className="intro-foot">
-          <p className="intro-hint">Tap the seal to open</p>
+          <p className="intro-hint">{stage === 'out' ? 'Tap the card to enter' : 'Tap the seal to open'}</p>
           <button type="button" className="intro-skip" onClick={skip}>Skip</button>
         </div>
       </div>

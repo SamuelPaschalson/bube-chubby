@@ -37,7 +37,7 @@ export const SITE = {
       from: 'Umuokwu Village, Alor, Anambra State',
     },
     {
-      names: 'Chief Sir Okey (Ijelenze) & Lady Stella (Iyom Mmasinachi) Ezepue',
+      names: 'Chief Sir Okey (Ijelenze) & Lady Stella (Iyom Mmachukwu) Ezepue',
       from: 'Umualocha Umudunu Village, Abagana, Anambra State',
     },
   ],
@@ -103,7 +103,7 @@ export const SITE = {
    * If that is unreachable they are kept in the guest's browser as a last resort.
    */
   rsvp: {
-    deadline: '', // TODO: e.g. '30 November 2026' (leave empty to hide)
+    deadline: '15 December 2026', // leave empty to hide
     // Every guest replies for themselves: one RSVP = one seat.
     form: {
       // "Bube and Chubby 2027" Google Form (responses land in its Sheet).
@@ -387,7 +387,7 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
     },
     {
       q: 'How do I RSVP?',
-      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every invited guest replies individually, so each person sends their own RSVP.',
+      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every invited guest replies individually, so each person sends their own RSVP. Please reply by 15 December 2026.',
     },
     {
       q: 'I am travelling in. What should I know?',

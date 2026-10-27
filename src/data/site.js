@@ -378,12 +378,16 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
       a: "We love your little ones, but this is an adults-only celebration, with no children's party. Thank you for understanding and for arranging a sitter for the day.",
     },
     {
+      q: 'Can I bring a plus-one?',
+      a: 'There are no plus-ones. Access is strictly by invitation, and we cater for named guests only, so please do not bring anyone who was not invited. They will not be seated.',
+    },
+    {
       q: 'What are the colours of the day?',
       a: 'Champagne, Rose Gold and Vintage Mauve. You will find the swatches on the home page. We would love to see you in them.',
     },
     {
       q: 'How do I RSVP?',
-      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every guest replies individually, so if you are coming with someone, ask them to send their own RSVP.',
+      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every invited guest replies individually, so each person sends their own RSVP.',
     },
     {
       q: 'I am travelling in. What should I know?',

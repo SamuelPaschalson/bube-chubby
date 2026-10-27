@@ -49,7 +49,7 @@ export default function Rsvp() {
         <div>
           <Reveal as="p" className="eyebrow">RSVP</Reveal>
           <Reveal as="h1">Will you join us?</Reveal>
-          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every guest replies individually, so if you are coming with someone, ask them to send their own RSVP. This is an adults-only celebration.</Reveal>
+          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every invited guest replies individually, so each person sends their own RSVP. This is an adults-only celebration.</Reveal>
           {SITE.rsvp.deadline && <p className="form-note">Kindly reply by <b>{SITE.rsvp.deadline}</b>.</p>}
         </div>
         <ArchPhoto src={SITE.photos.rsvp} alt="The couple laughing together" />
@@ -66,6 +66,10 @@ export default function Rsvp() {
             </Reveal>
           ) : (
             <Reveal as="form" className="card rsvp-card" noValidate onSubmit={submit}>
+              <aside className="rsvp-notice" role="note">
+                <p className="eyebrow">No plus-ones</p>
+                <p>Access is strictly by invitation and we cater for named guests only. Every invited guest must RSVP individually, so please reply for yourself alone. Anyone who was not invited will not be seated.</p>
+              </aside>
               <div className={`field${errors.fullName ? ' has-error' : ''}`}>
                 <label htmlFor="fullName">Your full name</label>
                 <input id="fullName" name="fullName" type="text" value={form.fullName} onChange={change} autoComplete="name" aria-invalid={!!errors.fullName} />

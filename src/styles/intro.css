@@ -1,10 +1,11 @@
 /* ================================================================
    THE OPENING — ivory & champagne drapes tied with a ribbon, a single-sided envelope, a rose-gold seal.
    Choreography is driven by [data-stage] on .intro:
-     closed → opening → curtains
-   One continuous movement, modelled on the guide video: the envelope
-   dissolves as the bow unties and sweeps out to the sides, and the drapes
-   are drawn open while the ribbon is still moving.
+     closed → opening → peek → leaving → curtains
+   The flap lifts and the card rises partway out so the guest sees whose
+   invitation it is; then the envelope dissolves as the bow unties and
+   sweeps out to the sides, and the drapes are drawn open while the ribbon
+   is still moving (modelled on the guide video).
    ================================================================ */
 
 .intro {
@@ -19,8 +20,8 @@
   background-color: #efe4cf;
   transition: opacity 0.6s ease;
 }
-/* from the first tap, the live site waits right behind the drapes */
-.intro:not([data-stage='closed']) {
+/* once the envelope is released, the live site waits right behind the drapes */
+.intro:is([data-stage='leaving'], [data-stage='curtains']) {
   background-color: transparent;
 }
 .intro.is-gone {
@@ -46,8 +47,8 @@
 .drape--l { left: 0; }
 .drape--r { right: 0; }
 /* as the bow is pulled, the drapes ease a hair apart: light at the seam */
-.intro:not([data-stage='closed']) .drape--l { transform: translateX(-0.9%); }
-.intro:not([data-stage='closed']) .drape--r { transform: translateX(0.9%); }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .drape--l { transform: translateX(-0.9%); }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .drape--r { transform: translateX(0.9%); }
 /* gathered drapes glide off the edges as the opening hands over to the site */
 .intro.is-gone .drape { transition: transform 0.6s cubic-bezier(0.55, 0, 0.75, 0.3); }
 .intro.is-gone .drape--l { transform: translateX(-24%); }
@@ -165,7 +166,7 @@
   background: radial-gradient(48% 46% at 50% 56%, rgba(255, 252, 240, 0.7), rgba(255, 252, 240, 0) 72%);
   transition: opacity 0.6s ease;
 }
-.intro:not([data-stage='closed']) .intro-spot {
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .intro-spot {
   opacity: 0;
 }
 
@@ -211,7 +212,7 @@
    A champagne ribbon is knotted across the seam where the drapes meet.
    On the tap the knot loosens and each half of the bow (loop, tail and
    band) sweeps out toward its own side, as if travelling with its drape.
-   The same animations run through 'opening' and 'curtains', so they carry
+   The same animations run through 'leaving' and 'curtains', so they carry
    on uninterrupted when the drapes start to move. */
 .tie {
   position: absolute;
@@ -230,13 +231,13 @@
 .tie .tail-l { transform-origin: 98px 66px; }
 .tie .tail-r { transform-origin: 102px 66px; }
 .tie .band { transform-origin: 100px 59px; }
-.intro:not([data-stage='closed']) .tie .knot { animation: knotGo 0.4s ease-in 0.05s both; }
-.intro:not([data-stage='closed']) .tie .loop-l { animation: sweepLoopL 1.05s var(--ease-flow) 0.12s both; }
-.intro:not([data-stage='closed']) .tie .loop-r { animation: sweepLoopR 1.05s var(--ease-flow) 0.12s both; }
-.intro:not([data-stage='closed']) .tie .tail-l { animation: sweepTailL 1.15s var(--ease-flow) 0.16s both; }
-.intro:not([data-stage='closed']) .tie .tail-r { animation: sweepTailR 1.15s var(--ease-flow) 0.16s both; }
-.intro:not([data-stage='closed']) .tie .band-l { animation: sweepBandL 1.1s var(--ease-flow) 0.1s both; }
-.intro:not([data-stage='closed']) .tie .band-r { animation: sweepBandR 1.1s var(--ease-flow) 0.1s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .knot { animation: knotGo 0.4s ease-in 0.05s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .loop-l { animation: sweepLoopL 1.05s var(--ease-flow) 0.12s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .loop-r { animation: sweepLoopR 1.05s var(--ease-flow) 0.12s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .tail-l { animation: sweepTailL 1.15s var(--ease-flow) 0.16s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .tail-r { animation: sweepTailR 1.15s var(--ease-flow) 0.16s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .band-l { animation: sweepBandL 1.1s var(--ease-flow) 0.1s both; }
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .tie .band-r { animation: sweepBandR 1.1s var(--ease-flow) 0.1s both; }
 @keyframes knotGo { to { transform: scale(0.2); opacity: 0; } }
 @keyframes sweepLoopL { 0% { transform: none; opacity: 1; } 100% { transform: translate(-150px, 8px) rotate(-34deg) scale(0.55, 0.8); opacity: 0; } }
 @keyframes sweepLoopR { 0% { transform: none; opacity: 1; } 100% { transform: translate(150px, 8px) rotate(34deg) scale(0.55, 0.8); opacity: 0; } }
@@ -333,7 +334,7 @@
   opacity: 0;
   animation: none;
 }
-.intro:not([data-stage='closed']) .intro-skip {
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .intro-skip {
   opacity: 0;
   pointer-events: none;
 }
@@ -354,12 +355,13 @@
   background: radial-gradient(50% 50% at 50% 50%, rgba(70, 44, 16, 0.5), transparent 72%);
   filter: blur(6px);
 }
-.intro:not([data-stage='closed']) .env-wrap {
+.intro:is([data-stage='leaving'], [data-stage='curtains']) .env-wrap {
   transform: translateY(-3vh) scale(1.04);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.7s var(--ease-flow), opacity 0.42s ease 0.18s;
+  transition: transform 0.75s var(--ease-flow), opacity 0.55s ease;
 }
+.intro:not([data-stage='closed']) .env-wrap { pointer-events: none; }
 
 .envelope {
   position: relative;
@@ -412,6 +414,11 @@
   outline: 1px solid rgba(185, 138, 69, 0.28);
   outline-offset: -2.6cqw;
   box-shadow: 0 -4px 18px rgba(30, 6, 14, 0.25);
+  transform: translateY(0);
+  transition: transform 0.85s var(--ease-env);
+}
+.intro:is([data-stage='peek'], [data-stage='leaving'], [data-stage='curtains']) .env-letter {
+  transform: translateY(-58%);
 }
 .lt-pre {
   font: 500 1.9cqw/1.4 'Jost', sans-serif;
@@ -473,7 +480,7 @@
   z-index: 4;
   transform-origin: top center;
   transform-style: preserve-3d;
-  transition: transform 0.45s var(--ease-env), z-index 0s linear 0.2s;
+  transition: transform 0.6s var(--ease-env), z-index 0s linear 0.25s;
 }
 .env-flap .face {
   position: absolute;
@@ -568,7 +575,7 @@
   .env-seal {
     animation: none;
   }
-  .intro:not([data-stage='closed']) .tie {
+  .intro:is([data-stage='leaving'], [data-stage='curtains']) .tie {
     opacity: 0;
   }
 }

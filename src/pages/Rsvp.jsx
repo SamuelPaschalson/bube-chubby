@@ -66,10 +66,6 @@ export default function Rsvp() {
             </Reveal>
           ) : (
             <Reveal as="form" className="card rsvp-card" noValidate onSubmit={submit}>
-              <aside className="rsvp-notice" role="note">
-                <p className="eyebrow">No plus-ones</p>
-                <p>Access is strictly by invitation and we cater for named guests only. Every invited guest must RSVP individually, so please reply for yourself alone. Anyone who was not invited will not be seated.</p>
-              </aside>
               <div className={`field${errors.fullName ? ' has-error' : ''}`}>
                 <label htmlFor="fullName">Your full name</label>
                 <input id="fullName" name="fullName" type="text" value={form.fullName} onChange={change} autoComplete="name" aria-invalid={!!errors.fullName} />

@@ -4,13 +4,14 @@ import { Music } from '../lib/audio';
 
 /**
  * THE OPENING
- *   closed → opening → curtains
- * Tap the seal and everything flows in one movement (about 3s): the flap
- * lifts and the envelope dissolves while the ribbon bow unties, its two halves
+ *   closed → opening → peek → leaving → curtains
+ * Tap the seal (about 5s in all): the flap lifts, the invitation card rises
+ * partway out and rests for a moment so the guest can see whose wedding it
+ * is, then the envelope fades as the ribbon bow unties, its two halves
  * sweeping out to the sides, and the ivory & champagne drapes are drawn
- * open onto the live website, which rises in behind them.
+ * open onto the live website. Tapping the card while it rests moves on.
  */
-const T = { release: 550, curtains: 2500, fade: 600 }; // ms
+const T = { flap: 500, peek: 1800, leave: 550, curtains: 2500, fade: 600 }; // ms
 const FOLDS = 15;
 
 // Fold depth varies a little from fold to fold so the cloth never looks tiled.
@@ -64,17 +65,28 @@ export default function Intro({ onReveal, onDone }) {
   const reveal = () => { if (!revealed.current) { revealed.current = true; onReveal(); } };
   const finish = () => { clear(); reveal(); setGone(true); setTimeout(onDone, T.fade); };
 
+  // Envelope fades while the ribbon unties; the drapes start drawing as it clears.
+  const release = (delay = 0) => {
+    let t = delay;
+    after(t, () => setStage('leaving'));
+    t += T.leave; after(t, () => { setStage('curtains'); reveal(); });
+    t += T.curtains; after(t, finish);
+  };
+
   const open = () => {
-    if (started.current) return;
+    if (started.current) {
+      // A tap on the resting card moves straight on.
+      if (stage === 'peek') { clear(); release(); }
+      return;
+    }
     started.current = true;
     Music.play(); // inside the tap, so browsers allow it
     if (reduced.current) {
       setStage('curtains'); reveal(); after(400, finish); return;
     }
     setStage('opening');
-    // The drapes start drawing while the ribbon is still sweeping away.
-    after(T.release, () => { setStage('curtains'); reveal(); });
-    after(T.release + T.curtains, finish);
+    after(T.flap, () => setStage('peek'));
+    release(T.flap + T.peek);
   };
 
   const skip = () => {

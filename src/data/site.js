@@ -386,8 +386,8 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
       a: 'Champagne, Rose Gold and Vintage Mauve. You will find the swatches on the home page. We would love to see you in them.',
     },
     {
-      q: 'How do I RSVP?',
-      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every invited guest replies individually, so each person sends their own RSVP. Please reply by 15 December 2026.',
+      q: 'RSVP Deadline',
+      a: 'Please RSVP before 15 December 2026, else you would not be included in the guest list.',
     },
     {
       q: 'I am travelling in. What should I know?',

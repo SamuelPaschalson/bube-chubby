@@ -223,6 +223,12 @@ export const SITE = {
       photos: ['images/party-bridesmaid-onyi.jpg'],
       focus: '50% 28%',
     },
+    {
+      name: 'Ugochi',
+      role: 'Bridesmaid',
+      photos: ['images/party-bridesmaid-ugochi.jpg'],
+      focus: '50% 30%',
+    },
   ],
 
   groomsmen: [

@@ -32,7 +32,8 @@ export class HttpRsvpService {
       const payload = await response.json().catch(() => null);
       // A static host answers 200 with HTML for unknown paths: treat as "no endpoint".
       if (!payload || typeof payload !== 'object') throw new RsvpSubmissionError('No RSVP endpoint here.');
-      return { id: payload.id ?? createId(), submission };
+      // `token` is the guest's private pass link id (only when the guest-list store recorded the RSVP).
+      return { id: payload.id ?? createId(), token: payload.token ?? null, status: payload.status ?? null, submission };
     } catch (error) {
       if (error instanceof RsvpSubmissionError) throw error;
       throw new RsvpSubmissionError('We could not reach the RSVP service.', error);

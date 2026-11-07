@@ -2,16 +2,15 @@ import { useState } from 'react';
 import SITE from '../data/site';
 import { Reveal } from '../components/ui';
 import { ArchPhoto, first } from './shared';
-import { useRsvpService } from '../features/rsvp/RsvpServiceProvider';
+import { encodeRequest } from '../lib/cards';
 
-const initial = { fullName: '', attendance: 'attending', guestOf: '', phone: '', email: '', messageToCouple: '' };
+const initial = { fullName: '', attendance: 'attending', guestOf: '', phone: '', email: '', messageToCouple: '', website: '' };
 
 export default function Rsvp() {
-  const service = useRsvpService();
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle');
-  const [error, setError] = useState('');
+  const [sent, setSent] = useState(null); // the prepared request, once the form is valid
+  const [copied, setCopied] = useState(false);
   const attending = form.attendance === 'attending';
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,22 +24,24 @@ export default function Rsvp() {
     return v;
   };
 
-  const submit = async (e) => {
+  const submit = (e) => {
     e.preventDefault();
+    if (form.website) return; // honeypot
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length) return;
-    setStatus('loading'); setError('');
-    try {
-      await service.submit({
-        ...form,
-        seats: attending ? 1 : 0, // every guest replies for themselves
-        submittedAt: new Date().toISOString(),
-      });
-      setStatus('success');
-    } catch (err) {
-      setError(err.message); setStatus('error');
-    }
+    const name = form.fullName.trim();
+    const note = form.messageToCouple.trim();
+    const ref = encodeRequest({ n: name, p: form.phone.trim(), s: form.guestOf, a: attending ? 1 : 0, m: note.slice(0, 300) });
+    const text =
+      `Hello, this is ${name}. ${attending ? `I would like to RSVP: I will be at` : `I am sorry, I will not be able to attend`} ${SITE.couple.brideShort} & ${SITE.couple.groomShort}'s wedding (${SITE.date.short}).\n\n` +
+      `Name: ${name}\nWhose guest: ${form.guestOf}\nPhone: ${form.phone.trim()}` + (note ? `\nNote: ${note}` : '') +
+      `\n\nRequest ref: ${ref}`;
+    setSent({ text, name });
+  };
+
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(sent.text); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { window.prompt('Copy this message', sent.text); }
   };
 
   return (
@@ -49,7 +50,7 @@ export default function Rsvp() {
         <div>
           <Reveal as="p" className="eyebrow">RSVP</Reveal>
           <Reveal as="h1">Will you join us?</Reveal>
-          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every invited guest replies individually, so each person sends their own RSVP. This is an adults-only celebration.</Reveal>
+          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every invited guest replies individually, and each request is checked against our guest list. Once approved, you will receive a personal digital access card, which you will need at the entrance. Please do not forward this page: requests from guests who are not on our list will not be approved. This is an adults-only celebration.</Reveal>
           {SITE.rsvp.deadline && <p className="form-note">Kindly reply by <b>{SITE.rsvp.deadline}</b>.</p>}
         </div>
         <ArchPhoto src={SITE.photos.rsvp} alt="The couple laughing together" />
@@ -57,12 +58,21 @@ export default function Rsvp() {
 
       <section className="section section--blush">
         <div className="shell">
-          {status === 'success' ? (
+          {sent ? (
             <Reveal className="card rsvp-card confirmation" role="status">
-              <p className="eyebrow">RSVP received</p>
-              <h2>Thank you, {first(form.fullName.trim())}.</h2>
-              <p>{attending ? 'Your RSVP has been received. We cannot wait to celebrate with you.' : 'Your reply has been received. You will be missed, and we are grateful you let us know.'}</p>
-              <a className="btn btn--ghost" href="#/">Back to the celebration</a>
+              <p className="eyebrow">One last step</p>
+              <h2>Send your RSVP, {first(sent.name)}.</h2>
+              <p>{attending
+                ? 'Your request is ready. Tap a contact below to send it on WhatsApp. We will check it against our guest list and, once approved, send your personal access card back to you on the same number.'
+                : 'Your reply is ready. Tap a contact below to send it on WhatsApp so we know. You will be missed.'}</p>
+              <div className="btn-row" style={{ justifyContent: 'center', marginTop: 4 }}>
+                {SITE.contacts.map((c) => (
+                  <a key={c.name} className="btn" href={`https://wa.me/${c.wa}?text=${encodeURIComponent(sent.text)}`} target="_blank" rel="noopener noreferrer">Send to {c.name} · {c.role}</a>
+                ))}
+              </div>
+              <button className="btn btn--ghost" type="button" onClick={copy}>{copied ? 'Copied' : 'Copy the message instead'}</button>
+              <p className="pass-hint">Your RSVP only counts once the message is sent. Only guests with an approved access card will be admitted.</p>
+              <button className="admin-link" type="button" style={{ color: 'inherit' }} onClick={() => setSent(null)}>Go back and edit</button>
             </Reveal>
           ) : (
             <Reveal as="form" className="card rsvp-card" noValidate onSubmit={submit}>
@@ -107,8 +117,10 @@ export default function Rsvp() {
                 <textarea id="messageToCouple" name="messageToCouple" rows="4" value={form.messageToCouple} onChange={change} />
               </div>
 
-              {error && <p className="form-error is-shown" role="alert" style={{ display: 'block' }}>{error}</p>}
-              <button className="btn" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Sending your reply…' : 'Send RSVP'}</button>
+              {/* Honeypot: invisible to people, irresistible to bots. */}
+              <div className="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={change} /></label></div>
+
+              <button className="btn" type="submit">{attending ? 'Request my access card' : 'Continue'}</button>
               <p className="form-note">Prefer to call?{' '}
                 {SITE.contacts.map((c, i) => <span key={c.name}>{i > 0 && ' · '}<a href={`tel:${c.tel}`}>{c.name} · {c.display}</a></span>)}
               </p>

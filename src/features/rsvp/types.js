@@ -14,6 +14,8 @@
  *
  * @typedef {Object} RsvpReceipt
  * @property {string} id
+ * @property {string|null} [token]   Private pass-link id. Present once the guest-list store has the RSVP.
+ * @property {'pending'|'approved'|'declined'|'not_attending'|null} [status]
  * @property {RsvpSubmission} submission
  *
  * @typedef {Object} RsvpService

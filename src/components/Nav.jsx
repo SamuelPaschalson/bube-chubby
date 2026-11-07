@@ -14,7 +14,7 @@ export default function Nav({ current }) {
           <span className="sr-only">Menu</span><i /><i /><i /><i />
         </button>
         <ul className={`nav-links${open ? ' is-open' : ''}`} id="nav-links">
-          {ROUTES.map((r) => (
+          {ROUTES.filter((r) => !r.hidden).map((r) => (
             <li key={r.path}><a href={`#${r.path}`} className={r.cta ? 'nav-cta' : ''} aria-current={r.path === current ? 'page' : undefined}>{r.nav}</a></li>
           ))}
         </ul>

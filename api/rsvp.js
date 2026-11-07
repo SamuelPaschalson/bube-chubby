@@ -1,11 +1,17 @@
 /**
- * RSVP intake endpoint (Vercel / Netlify / any Node host).
- * One POST writes the response into the couple's Google Form (and its Sheet).
+ * RSVP intake endpoint (Vercel).
+ * One POST:
+ *   1. files the request in the guest-list store as PENDING (the couple approve it
+ *      from /#/admin, which issues the guest's access card), and
+ *      refuses a second RSVP from the same phone number;
+ *   2. also writes the response into the couple's Google Form (and its Sheet) as a backup.
  * Posting server-side lets us read Google's status code, so real errors surface
  * instead of being reported to the guest as success.
  *
  * Configure with env vars (or edit the defaults below) — see RSVP-SETUP.md.
  */
+import { storeConfigured, createRecord, tooMany, clientIp, parseBody, cors, STATUS } from './_lib.js';
+
 const GOOGLE_FORM_ID = process.env.GOOGLE_FORM_ID ?? '1FAIpQLScfYRWaazHXNNrCgxzh09nSy4GZOSLgNg59S2A00-xmzyOJrA'; // the long id in the form URL
 const ENTRIES = {
   name: process.env.GOOGLE_FORM_ENTRY_NAME ?? 'entry.786368817',
@@ -22,11 +28,6 @@ const ATTENDING = {
   declined: process.env.GOOGLE_FORM_NO ?? 'No',
 };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-const parse = (body) => {
-  if (typeof body === 'string') { try { return JSON.parse(body); } catch { return {}; } }
-  return body ?? {};
-};
 
 async function sendToGoogleForm(p) {
   if (!GOOGLE_FORM_ID || !ENTRIES.name) {
@@ -65,25 +66,61 @@ async function sendToGoogleForm(p) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN ?? '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (cors(req, res, 'POST')) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
 
-  const p = parse(req.body);
+  const p = parseBody(req.body);
+  // Honeypot: real guests never see or fill this field. Bots do.
+  if (p.website) return res.status(200).json({ id: `rsvp_${Date.now().toString(36)}`, status: STATUS.pending });
+
   if (!p.fullName || String(p.fullName).trim().length < 2) return res.status(400).json({ error: 'A name is required.' });
   if (p.email && !EMAIL.test(p.email)) return res.status(400).json({ error: 'That email address looks wrong.' });
+  if (String(p.phone ?? '').replace(/\D/g, '').length < 7) return res.status(400).json({ error: 'A phone number is required.' });
 
+  const attending = p.attendance !== 'declined';
+  let record = null;
+  let storeProblem = '';
+
+  if (storeConfigured()) {
+    if (await tooMany('rsvp', clientIp(req), 15, 3600)) {
+      return res.status(429).json({ error: 'Too many RSVPs from this connection.', problems: ['Too many RSVPs were sent from this connection. Please try again later, or call one of the family contacts.'], definitive: true });
+    }
+    try {
+      record = await createRecord(p);
+    } catch (error) {
+      if (error.duplicate) {
+        return res.status(409).json({ error: 'Duplicate RSVP.', problems: [error.message], definitive: true });
+      }
+      storeProblem = error.message;
+    }
+  }
+
+  let formOk = false;
+  let formError = null;
   try {
     await sendToGoogleForm(p);
+    formOk = true;
   } catch (error) {
+    formError = error;
+  }
+
+  if (!record && !formOk) {
     // 501 when unconfigured lets the browser fall back to its other channels.
-    return res.status(error.notConfigured ? 501 : 502).json({
+    const problems = [];
+    if (storeProblem) problems.push(`Guest list: ${storeProblem}`);
+    if (formError) problems.push(`Google Form: ${formError.message}`);
+    return res.status(formError?.notConfigured && !storeProblem ? 501 : 502).json({
       error: 'We could not record your RSVP.',
-      problems: [`Google Form: ${error.message}`],
-      ...(error.definitive ? { definitive: true } : {}),
+      problems,
+      ...(formError?.definitive ? { definitive: true } : {}),
     });
   }
-  return res.status(200).json({ id: `rsvp_${Date.now().toString(36)}`, googleForm: true });
+
+  return res.status(200).json({
+    id: record?.id ?? `rsvp_${Date.now().toString(36)}`,
+    // The private pass link token. Only present when the guest-list store recorded the RSVP.
+    token: record?.id ?? null,
+    status: record?.status ?? (attending ? STATUS.pending : STATUS.notAttending),
+    googleForm: formOk,
+  });
 }

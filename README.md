@@ -15,4 +15,5 @@ was authored; `npm run build` produces the Vite equivalent).
   bridesmaids, story text, hashtag, RSVP deadline, `public/song.mp3`).
 - **Opening (envelope + drape curtains):** `src/components/Intro.jsx`, `src/styles/intro.css`
   (`FOLDS` = number of folds, `--g` = how tightly the open curtains bunch). `?intro=1` replays it.
-- **RSVP:** writes to the Google Form (see RSVP-SETUP.md), one RSVP per guest (each person replies individually).
+- **RSVP:** no server or database. Guests send an RSVP request by WhatsApp; you approve it at `/#/admin`, which signs a
+  personal digital access card. The site verifies the signature in the browser. Setup: RSVP-SETUP.md.

@@ -5,6 +5,8 @@ import OurPeople from './pages/OurPeople';
 import Gallery from './pages/Gallery';
 import GuestGuide from './pages/GuestGuide';
 import Rsvp from './pages/Rsvp';
+import Pass from './pages/Pass';
+import Admin from './pages/Admin';
 
 /** One list drives the nav, the footer and the router. */
 export const ROUTES = [
@@ -15,6 +17,9 @@ export const ROUTES = [
   { path: '/gallery', nav: 'Gallery', title: 'Gallery', Component: Gallery },
   { path: '/guest-guide', nav: 'Guest Guide', title: 'Guest Guide', Component: GuestGuide },
   { path: '/rsvp', nav: 'RSVP', title: 'RSVP', Component: Rsvp, cta: true },
+  // Not in the menu or footer: guests arrive here from their pass link, the couple from their own bookmark.
+  { path: '/pass', nav: 'My Pass', title: 'My Access Card', Component: Pass, hidden: true },
+  { path: '/admin', nav: 'Guest List', title: 'Guest List', Component: Admin, hidden: true },
 ];
 export function routeFor(hash) {
   const path = (hash || '').replace(/^#/, '').split('?')[0] || '/';

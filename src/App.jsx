@@ -5,6 +5,7 @@ import Nav from './components/Nav';
 import Footer from './components/Footer';
 import Intro from './components/Intro';
 import MusicToggle from './components/MusicToggle';
+import { RsvpServiceProvider } from './features/rsvp/RsvpServiceProvider';
 
 const first = (s) => s.split(' ')[0];
 
@@ -46,7 +47,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <RsvpServiceProvider>
       <a className="skip-link" href="#main">Skip to content</a>
       <Nav current={route.path} />
       <main id="main" data-page={route.path === '/' ? 'home' : route.path.slice(1)}>
@@ -55,6 +56,6 @@ export default function App() {
       <Footer />
       <MusicToggle visible={revealed} />
       {!introDone && <Intro onReveal={() => setRevealed(true)} onDone={done} />}
-    </>
+    </RsvpServiceProvider>
   );
 }

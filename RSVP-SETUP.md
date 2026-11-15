@@ -1,4 +1,27 @@
-# RSVP approval + digital access cards (no server, no database)
+# RSVP: Google Form + instant access cards
+
+1. **Guest RSVPs** on the site: name, attending or not, whose guest, phone, optional email and note,
+   and (if attending) whether they bring anyone: Just me / Plus one / Plus two.
+2. **The reply goes straight into the Google Form** "Bube and Chubby 2027", so every response appears in its
+   linked Google Sheet for monitoring. *Seats needed* = the guest plus their plus-ones. The *note* column holds
+   the access code, "Bringing: Plus one" (etc.) and the guest's message.
+3. **The guest sees their access card immediately** (name, plus one / two, unique code, event details) and taps
+   **Download my card** to save it as an image. The card stays on their phone, so revisiting the RSVP page shows it again.
+
+At the entrance, check the code on a guest's card against the Sheet's note column.
+
+**Google Form requirement:** the *Seats needed* question must offer the options **1, 2 and 3**. If "3" is missing,
+Google rejects every RSVP that includes two guests.
+
+Settings live in `src/data/site.js` → `rsvp` (`deadline`, `maxPlusOnes`, `form.action`, `form.fields`).
+
+---
+
+## Older: signed cards issued from the Guest List page
+
+The `/#/admin` page below still works for cards you issue by hand (for example a guest who calls you),
+and links already sent keep opening on `/#/pass`. It is no longer needed for normal RSVPs.
+
 
 Everything runs inside the site and on your own phones. Nothing is stored on any server and no outside service is used.
 

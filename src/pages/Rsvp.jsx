@@ -2,15 +2,27 @@ import { useState } from 'react';
 import SITE from '../data/site';
 import { Reveal } from '../components/ui';
 import { ArchPhoto, first } from './shared';
-import { encodeRequest } from '../lib/cards';
+import { newCode } from '../lib/cards';
+import { AccessCard, downloadCardImage } from '../components/AccessCard';
+import { useRsvpService } from '../features/rsvp/RsvpServiceProvider';
 
-const initial = { fullName: '', attendance: 'attending', guestOf: '', phone: '', email: '', messageToCouple: '', website: '' };
+const MAX_PLUS = SITE.rsvp.maxPlusOnes ?? 2;
+const PLUS_LABELS = ['Just me', 'Plus one', 'Plus two'];
+const initial = { fullName: '', attendance: 'attending', plusOnes: '0', guestOf: '', phone: '', email: '', messageToCouple: '', website: '' };
+
+// The guest's card stays on this phone so they can come back and save it again.
+const SAVED = 'bc-rsvp-card';
+const recall = () => { try { return JSON.parse(localStorage.getItem(SAVED)) || null; } catch { return null; } };
+const remember = (card) => { try { localStorage.setItem(SAVED, JSON.stringify(card)); } catch { /* private mode */ } };
 
 export default function Rsvp() {
+  const service = useRsvpService();
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
-  const [sent, setSent] = useState(null); // the prepared request, once the form is valid
-  const [copied, setCopied] = useState(false);
+  const [card, setCard] = useState(recall);
+  const [status, setStatus] = useState(() => (recall() ? 'card' : 'idle')); // idle | sending | card | declined | error
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const attending = form.attendance === 'attending';
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,55 +36,91 @@ export default function Rsvp() {
     return v;
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (form.website) return; // honeypot
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length) return;
-    const name = form.fullName.trim();
+    const plusOnes = attending ? Number(form.plusOnes) : 0;
+    const code = attending ? newCode() : '';
     const note = form.messageToCouple.trim();
-    const ref = encodeRequest({ n: name, p: form.phone.trim(), s: form.guestOf, a: attending ? 1 : 0, m: note.slice(0, 300) });
-    const text =
-      `Hello, this is ${name}. ${attending ? `I would like to RSVP: I will be at` : `I am sorry, I will not be able to attend`} ${SITE.couple.brideShort} & ${SITE.couple.groomShort}'s wedding (${SITE.date.short}).\n\n` +
-      `Name: ${name}\nWhose guest: ${form.guestOf}\nPhone: ${form.phone.trim()}` + (note ? `\nNote: ${note}` : '') +
-      `\n\nRequest ref: ${ref}`;
-    setSent({ text, name });
+    // Lands in the Google Form's note column, so the Sheet can be checked at the entrance.
+    const comments = [code && `Access code: ${code}`, attending && `Bringing: ${PLUS_LABELS[plusOnes]}`, note && `Note: ${note}`].filter(Boolean).join('\n');
+    setStatus('sending'); setError('');
+    try {
+      await service.submit({
+        fullName: form.fullName.trim(),
+        attendance: form.attendance,
+        guestOf: form.guestOf,
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        messageToCouple: note,
+        seats: attending ? 1 + plusOnes : 0,
+        plusOnes,
+        code,
+        comments,
+        submittedAt: new Date().toISOString(),
+      });
+      if (!attending) { setStatus('declined'); return; }
+      const next = { fullName: form.fullName.trim(), guestOf: form.guestOf, code, plusOnes };
+      remember(next);
+      setCard(next);
+      setStatus('card');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setError(err.message || 'We could not send your RSVP.');
+      setStatus('error');
+    }
   };
 
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(sent.text); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { window.prompt('Copy this message', sent.text); }
+  const save = async () => {
+    setSaving(true); setError('');
+    try { await downloadCardImage(card); } catch { setError('We could not save the image. Please take a screenshot of the card instead.'); }
+    setSaving(false);
   };
+
+  const another = () => { setForm(initial); setErrors({}); setStatus('idle'); setError(''); };
+
+  const contacts = (
+    <p className="form-note">Prefer to call?{' '}
+      {SITE.contacts.map((c, i) => <span key={c.name}>{i > 0 && ' · '}<a href={`tel:${c.tel}`}>{c.name} · {c.display}</a></span>)}
+    </p>
+  );
 
   return (
     <>
       <section className="shell page-head">
         <div>
           <Reveal as="p" className="eyebrow">RSVP</Reveal>
-          <Reveal as="h1">Will you join us?</Reveal>
-          <Reveal as="p" className="lede">Tell us whether we will see you on {SITE.date.short}. Every invited guest replies individually, and each request is checked against our guest list. Once approved, you will receive a personal digital access card, which you will need at the entrance. Please do not forward this page: requests from guests who are not on our list will not be approved. This is an adults-only celebration.</Reveal>
-          {SITE.rsvp.deadline && <p className="form-note">Kindly reply by <b>{SITE.rsvp.deadline}</b>.</p>}
+          <Reveal as="h1">{status === 'card' ? `See you there, ${first(card.fullName)}` : 'Will you join us?'}</Reveal>
+          <Reveal as="p" className="lede">{status === 'card'
+            ? 'Your RSVP has been received. Below is your access card: save it to your phone and show it at the entrance, with a valid ID.'
+            : `Tell us whether we will see you on ${SITE.date.short}. You may bring up to ${MAX_PLUS === 1 ? 'one guest' : `${MAX_PLUS} guests`}. Your access card appears as soon as you reply. This is an adults-only celebration.`}</Reveal>
+          {status !== 'card' && SITE.rsvp.deadline && <p className="form-note">Kindly reply by <b>{SITE.rsvp.deadline}</b>.</p>}
         </div>
         <ArchPhoto src={SITE.photos.rsvp} alt="The couple laughing together" />
       </section>
 
       <section className="section section--blush">
         <div className="shell">
-          {sent ? (
-            <Reveal className="card rsvp-card confirmation" role="status">
-              <p className="eyebrow">One last step</p>
-              <h2>Send your RSVP, {first(sent.name)}.</h2>
-              <p>{attending
-                ? 'Your request is ready. Tap a contact below to send it on WhatsApp. We will check it against our guest list and, once approved, send your personal access card back to you on the same number.'
-                : 'Your reply is ready. Tap a contact below to send it on WhatsApp so we know. You will be missed.'}</p>
-              <div className="btn-row" style={{ justifyContent: 'center', marginTop: 4 }}>
-                {SITE.contacts.map((c) => (
-                  <a key={c.name} className="btn" href={`https://wa.me/${c.wa}?text=${encodeURIComponent(sent.text)}`} target="_blank" rel="noopener noreferrer">Send to {c.name} · {c.role}</a>
-                ))}
+          {status === 'card' ? (
+            <div className="pass-wrap">
+              <AccessCard pass={card} />
+              <div className="pass-actions">
+                <button className="btn" type="button" onClick={save} disabled={saving}>{saving ? 'Preparing…' : 'Download my card'}</button>
+                <a className="btn btn--ghost" href="#/wedding-day">Event details</a>
               </div>
-              <button className="btn btn--ghost" type="button" onClick={copy}>{copied ? 'Copied' : 'Copy the message instead'}</button>
-              <p className="pass-hint">Your RSVP only counts once the message is sent. Only guests with an approved access card will be admitted.</p>
-              <button className="admin-link" type="button" style={{ color: 'inherit' }} onClick={() => setSent(null)}>Go back and edit</button>
+              {error && <p className="form-error is-shown" role="alert" style={{ display: 'block', textAlign: 'center' }}>{error}</p>}
+              <p className="pass-hint">This card admits only the number of guests shown on it. Please do not forward it.</p>
+              <button className="admin-link" type="button" style={{ color: 'inherit' }} onClick={another}>RSVP for someone else</button>
+            </div>
+          ) : status === 'declined' ? (
+            <Reveal className="card rsvp-card confirmation" role="status">
+              <p className="eyebrow">RSVP received</p>
+              <h2>Thank you, {first(form.fullName.trim())}.</h2>
+              <p>Your reply has been received. You will be missed, and we are grateful you let us know.</p>
+              <a className="btn btn--ghost" href="#/">Back to the celebration</a>
             </Reveal>
           ) : (
             <Reveal as="form" className="card rsvp-card" noValidate onSubmit={submit}>
@@ -89,6 +137,15 @@ export default function Rsvp() {
                   <label className="choice"><input type="radio" name="attendance" value="declined" checked={!attending} onChange={change} /><span>{SITE.rsvp.form.attendingOptions.no}</span></label>
                 </div>
               </fieldset>
+
+              {attending && (
+                <div className="field">
+                  <label htmlFor="plusOnes">Are you bringing anyone?</label>
+                  <select id="plusOnes" name="plusOnes" value={form.plusOnes} onChange={change}>
+                    {PLUS_LABELS.slice(0, MAX_PLUS + 1).map((l, n) => <option key={l} value={n}>{l}</option>)}
+                  </select>
+                </div>
+              )}
 
               <div className={`field${errors.guestOf ? ' has-error' : ''}`}>
                 <label htmlFor="guestOf">Whose guest are you?</label>
@@ -120,10 +177,9 @@ export default function Rsvp() {
               {/* Honeypot: invisible to people, irresistible to bots. */}
               <div className="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={change} /></label></div>
 
-              <button className="btn" type="submit">{attending ? 'Request my access card' : 'Continue'}</button>
-              <p className="form-note">Prefer to call?{' '}
-                {SITE.contacts.map((c, i) => <span key={c.name}>{i > 0 && ' · '}<a href={`tel:${c.tel}`}>{c.name} · {c.display}</a></span>)}
-              </p>
+              {status === 'error' && <p className="form-error is-shown" role="alert" style={{ display: 'block' }}>{error} Please try again, or call one of the family contacts below.</p>}
+              <button className="btn" type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending your RSVP…' : attending ? 'Send RSVP & get my card' : 'Send my reply'}</button>
+              {contacts}
             </Reveal>
           )}
         </div>

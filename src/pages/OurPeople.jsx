@@ -34,7 +34,17 @@ export default function OurPeople() {
         <ArchPhoto src={SITE.photos.people} alt="The couple against a red-brick wall" />
       </section>
 
-      <section className="section section--tight">
+      {SITE.littleBrides?.length > 0 && (
+        <section className="section section--tight">
+          <div className="shell">
+            <Reveal as="p" className="eyebrow center">Our little brides</Reveal>
+            <Reveal as="hr" className="rule" style={{ marginBlock: '18px clamp(24px,4vw,44px)' }} />
+            <div className="people-grid">{SITE.littleBrides.map((p, i) => <Person p={p} key={p.name || `l${i}`} />)}</div>
+          </div>
+        </section>
+      )}
+
+      <section className={`section ${SITE.littleBrides?.length ? 'section--blush' : 'section--tight'}`}>
         <div className="shell">
           <Reveal as="p" className="eyebrow center">Standing with the bride</Reveal>
           <Reveal as="hr" className="rule" style={{ marginBlock: '18px clamp(24px,4vw,44px)' }} />
@@ -51,7 +61,7 @@ export default function OurPeople() {
         </div>
       </section>
 
-      <section className="section section--blush">
+      <section className={`section${SITE.littleBrides?.length ? '' : ' section--blush'}`}>
         <div className="shell">
           <Reveal as="p" className="eyebrow center">Standing with the groom</Reveal>
           <Reveal as="hr" className="rule" style={{ marginBlock: '18px clamp(24px,4vw,44px)' }} />

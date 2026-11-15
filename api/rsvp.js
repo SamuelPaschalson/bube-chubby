@@ -41,11 +41,11 @@ async function sendToGoogleForm(p) {
   put('name', p.fullName);
   put('attending', attending ? ATTENDING.attending : ATTENDING.declined);
   put('guestOf', p.guestOf);
-  // One RSVP per guest: an acceptance is always 1 seat.
-  if (attending) put('seats', '1');
+  // The guest plus their named plus-ones (at most 3 seats).
+  if (attending) put('seats', String(Math.min(Math.max(Number(p.seats) || 1, 1), 3)));
   put('phone', (p.phone ?? '').replace(/[^\d]/g, ''));
   put('email', p.email);
-  put('comments', (p.messageToCouple ?? '').trim());
+  put('comments', String(p.comments ?? p.messageToCouple ?? '').trim().slice(0, 1500));
   body.set('fvv', '1');
   body.set('pageHistory', '0');
 

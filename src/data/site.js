@@ -96,13 +96,12 @@ export const SITE = {
   ],
 
   /**
-   * RSVP — no server, no database.
-   *  1. A guest fills the RSVP form; it prepares a WhatsApp message to the family contact.
-   *  2. The couple open  /#/admin  on their own phone, paste the request and tap "Issue card".
-   *  3. That signs a personal access card. The couple send its link back on WhatsApp.
-   *  4. The Pass page checks the signature against `publicKey` below, so only cards
-   *     signed by the couple's private key are ever shown as valid.
-   * One-time setup is in RSVP-SETUP.md.
+   * RSVP
+   *  1. A guest fills the RSVP form: just me, plus one or plus two (up to `maxPlusOnes`).
+   *  2. The reply goes straight into the Google Form below, so the couple can
+   *     follow every response in its Sheet. The access code goes in the note column.
+   *  3. The guest sees their access card at once and can save it as an image.
+   * `publicKey` / `revoked` only matter for cards issued from the Guest List page (#/admin).
    */
   rsvp: {
     deadline: '15 December 2026', // leave empty to hide
@@ -110,12 +109,26 @@ export const SITE = {
     publicKey: {
       kty: 'EC',
       crv: 'P-256',
-      x: 'YtmNed0Xx7U9Dyt_PtIPi8ekc0c5Ttsjeeho7hNvUek',
-      y: 'rp3ZJs0MvrWmRJtg0UMF1P5-UjykJV35YWLVUq9T4Mw',
+      x: 'GSmCgqX6_eYrzbjNeSEi903aPspHOx06q7lCAn33jV8',
+      y: 'mERgs6OnX9ms2rofhM9BWrRr-aGc7THX64lL7KJ_taA',
     },
     // Codes of cards you have withdrawn (the Guest List page prints the line to paste). Redeploy after editing.
     revoked: [],
+    maxPlusOnes: 2, // each guest may bring up to this many guests (plus one / plus two)
     form: {
+      // "Bube and Chubby 2027" Google Form (responses land in its Sheet).
+      action:
+        'https://docs.google.com/forms/d/e/1FAIpQLScfYRWaazHXNNrCgxzh09nSy4GZOSLgNg59S2A00-xmzyOJrA/formResponse',
+      fields: {
+        name: 'entry.786368817',
+        attending: 'entry.1304438325',
+        guestOf: 'entry.1422033785',
+        seats: 'entry.1799623948', // "Seats needed": its options must include 1, 2 and 3
+        phone: 'entry.820982805',
+        email: 'entry.1876165105',
+        comments: 'entry.157814929', // the access code, plus one / two and the guest's note
+      },
+      // Option text must match the Google Form exactly.
       attendingOptions: { yes: 'Yes', no: 'No' },
       guestOfOptions: ['Grooms family', 'Brides family', 'Friends'],
     },
@@ -171,6 +184,21 @@ export const SITE = {
   // TODO: new portraits for Amanda, Nnenna, Ogo and Oma. Add them as they arrive:
   //   photos: ['images/party-bridesmaid-name.jpg']  (an empty list shows "Portrait coming soon")
   // Cards with two photos flip on tap.
+  littleBrides: [
+    {
+      name: 'Imani',
+      role: 'Little Bride',
+      photos: ['images/party-little-bride-1.jpg'],
+      focus: '50% 40%',
+    },
+    {
+      name: 'Inaya',
+      role: 'Little Bride',
+      photos: ['images/party-little-bride-2.jpg'],
+      focus: '50% 40%',
+    },
+  ],
+
   bridesmaids: [
     {
       name: 'Ify',
@@ -225,12 +253,6 @@ export const SITE = {
       role: 'Bridesmaid',
       photos: ['images/party-bridesmaid-ugochi.jpg'],
       focus: '50% 30%',
-    },
-    {
-      name: '', // TODO: the little bride's first name (leave empty to show only her role)
-      role: 'Little Bride',
-      photos: ['images/party-little-bride-1.jpg', 'images/party-little-bride-2.jpg'],
-      focus: '50% 40%',
     },
   ],
 
@@ -394,7 +416,7 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
     },
     {
       q: 'Can I bring a plus-one?',
-      a: 'There are no plus-ones. Access is strictly by invitation, and we cater for named guests only. Only guests with an approved access card will be admitted, so please do not bring anyone who was not invited. They will not be seated.',
+      a: 'Yes, you may bring up to two guests (a plus one or a plus two). Choose how many when you RSVP, and your access card will show it. As this is an adults-only celebration, your guests should be adults too.',
     },
     {
       q: 'What are the colours of the day?',
@@ -402,11 +424,11 @@ And soon, the girl I found on Instagram will become the woman I get to call my w
     },
     {
       q: 'How do I RSVP?',
-      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Every invited guest replies individually, so each person sends their own RSVP. We check each request against our guest list, then send your access card to you on WhatsApp. Please RSVP before 15 December 2026.',
+      a: 'Use the RSVP page on this site, or call either of the family contacts listed below. Choose whether you are bringing anyone (up to two guests). As soon as you send your RSVP, your access card appears on screen for you to save. Please RSVP before 15 December 2026.',
     },
     {
       q: 'What is the digital access card?',
-      a: 'After you RSVP, we confirm your request against our guest list. Once approved, you receive a personal digital access card with your name on it. Please keep it on your phone and show it at the entrance, with a valid ID. It is for you alone and cannot be shared, so please do not forward the RSVP page or your card to anyone.',
+      a: 'When you RSVP, you receive a personal digital access card with your name, how many guests you are bringing and a unique access code. Save it to your phone and show it at the entrance, with a valid ID. It admits only the number of guests shown, so please do not forward it.',
     },
     {
       q: 'RSVP Deadline',

@@ -9,8 +9,11 @@
  * @property {string} email
  * @property {Attendance} attendance
  * @property {string} guestOf   Which family contact the guest belongs to (e.g. "Okey · Ezepue family").
- * @property {number} seats     Always 1 when attending (one RSVP per guest), 0 when declining.
+ * @property {number} seats     1 + the number of plus-ones when attending, 0 when declining.
+ * @property {number} plusOnes  How many guests they bring: 0, 1 or 2 (up to SITE.rsvp.maxPlusOnes).
+ * @property {string} code      The access code shown on the guest's card.
  * @property {string} messageToCouple
+ * @property {string} comments  What goes in the Google Form's note column (code, plus-ones, note).
  *
  * @typedef {Object} RsvpReceipt
  * @property {string} id

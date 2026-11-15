@@ -22,11 +22,12 @@ export function buildGoogleFormBody(submission) {
   put('name', submission.fullName);
   put('attending', attending ? form.attendingOptions.yes : form.attendingOptions.no);
   put('guestOf', submission.guestOf);
-  // One RSVP per guest: an acceptance is always 1 seat, a decline leaves it blank.
-  if (attending) put('seats', '1');
+  // The guest plus their named plus-ones; a decline leaves it blank.
+  if (attending) put('seats', String(submission.seats || 1));
   put('phone', digitsOnlyPhone);
   put('email', submission.email);
-  put('comments', (submission.messageToCouple ?? '').trim());
+  // Access code + plus-ones' names + the guest's note, so the Sheet can be checked at the door.
+  put('comments', (submission.comments ?? submission.messageToCouple ?? '').trim());
 
   // Never send 'emailAddress': it forces verified-email mode (401 for guests).
   body.set('fvv', '1');

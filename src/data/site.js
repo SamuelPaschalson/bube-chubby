@@ -226,6 +226,12 @@ export const SITE = {
       photos: ['images/party-bridesmaid-ugochi.jpg'],
       focus: '50% 30%',
     },
+    {
+      name: '', // TODO: the little bride's first name (leave empty to show only her role)
+      role: 'Little Bride',
+      photos: ['images/party-little-bride-1.jpg', 'images/party-little-bride-2.jpg'],
+      focus: '50% 40%',
+    },
   ],
 
   groomsmen: [
